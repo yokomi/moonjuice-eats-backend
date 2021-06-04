@@ -12,6 +12,5 @@ export class CreateRestaurantInput extends PickType(Restaurant, [
   categoryName: string;
 }
 
-
 @ObjectType()
 export class CreateRestaurantOutput extends CoreOutput {}

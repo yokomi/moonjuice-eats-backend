@@ -4,17 +4,17 @@ import {
   ObjectType,
   registerEnumType,
 } from '@nestjs/graphql';
-import { CoreEntity } from 'src/common/entities/core.entity';
 import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { CoreEntity } from 'src/common/entities/core.entity';
 import { InternalServerErrorException } from '@nestjs/common';
 import { IsBoolean, IsEmail, IsEnum, IsString } from 'class-validator';
 import { Restaurant } from 'src/restaurants/entities/restaurant.entity';
 
 export enum UserRole {
-  Client = 'CLIENT',
-  Owner = 'OWNER',
-  Delivery = 'DELIVERY',
+  Client = 'Client',
+  Owner = 'Owner',
+  Delivery = 'Delivery',
 }
 
 registerEnumType(UserRole, { name: 'UserRole' });
@@ -23,20 +23,17 @@ registerEnumType(UserRole, { name: 'UserRole' });
 @ObjectType()
 @Entity()
 export class User extends CoreEntity {
-  @Column({unique: true})
+  @Column({ unique: true })
   @Field(type => String)
   @IsEmail()
   email: string;
 
-  @Column({ select : false})
+  @Column({ select: false })
   @Field(type => String)
   @IsString()
   password: string;
 
-  @Column({
-    type: 'enum',
-    enum: UserRole,
-  })
+  @Column({ type: 'enum', enum: UserRole })
   @Field(type => UserRole)
   @IsEnum(UserRole)
   role: UserRole;
@@ -45,16 +42,18 @@ export class User extends CoreEntity {
   @Field(type => Boolean)
   @IsBoolean()
   verified: boolean;
-   
-  @Field(type => [Restaurant])
-	@OneToMany(type => Restaurant, restaurant => restaurant.owner)
-	restaurants: Restaurant[];
 
+  @Field(type => [Restaurant])
+  @OneToMany(
+    type => Restaurant,
+    restaurant => restaurant.owner,
+  )
+  restaurants: Restaurant[];
 
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword(): Promise<void> {
-    if(this.password){
+    if (this.password) {
       try {
         this.password = await bcrypt.hash(this.password, 10);
       } catch (e) {

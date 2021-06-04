@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateAccountInput, CreateAccountOutput } from './dtos/create-account.dto';
+import {
+  CreateAccountInput,
+  CreateAccountOutput,
+} from './dtos/create-account.dto';
 import { LoginInput, LoginOutput } from './dtos/login.dto';
 import { User } from './entities/user.entity';
 import { JwtService } from 'src/jwt/jwt.service';
@@ -19,8 +22,7 @@ export class UserService {
     private readonly verifications: Repository<Verification>,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
-  ) {
-  }
+  ) {}
 
   async createAccount({
     email,
@@ -85,9 +87,8 @@ export class UserService {
       const user = await this.users.findOneOrFail({ id });
       return {
         ok: true,
-        user: user,
+        user,
       };
-      
     } catch (error) {
       return { ok: false, error: 'User Not Found' };
     }
@@ -99,12 +100,13 @@ export class UserService {
   ): Promise<EditProfileOutput> {
     try {
       const user = await this.users.findOne(userId);
-      // if the email is already taken don't let it change
       if (email) {
         user.email = email;
         user.verified = false;
         await this.verifications.delete({ user: { id: user.id } });
-        const verification = await this.verifications.save(this.verifications.create({ user }));
+        const verification = await this.verifications.save(
+          this.verifications.create({ user }),
+        );
         this.mailService.sendVerificationEmail(user.email, verification.code);
       }
       if (password) {
@@ -133,8 +135,7 @@ export class UserService {
       }
       return { ok: false, error: 'Verification not found.' };
     } catch (error) {
-      return { ok: false, error: "Could not verify Email" };
+      return { ok: false, error: 'Could not verify email.' };
     }
   }
-  
 }
